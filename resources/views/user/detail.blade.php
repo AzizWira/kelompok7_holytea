@@ -2,104 +2,87 @@
 
 @section('title', 'Detail Menu - HolyTea Indonesia')
 
-@section('page_css')
+@section('head')
     <link rel="stylesheet" href="{{ asset('css/detail.css') }}" />
+    <link rel="icon" href="https://drive.google.com/uc?export=view&id=1KAhrdmbD3r05XfujnPg6Dw4r0BndB2s-" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
 @endsection
-
-@section('nav_links')
-    <ul class="nav_link">
-        <li class="hover-underline-animation">
-            <a href="{{ url('/user') }}">Beranda</a>
-        </li>
-        <li class="hover-underline-animation">
-            <a href="{{ url('/user/menu') }}">Menu</a>
-        </li>
-    </ul>
-@endsection
-
 @section('content')
-    <main class="detail-wrap">
+    <main class="detail-wrap" data-slug="{{ $slug ?? request()->route('slug') ?? '' }}">
+        {{-- breadcrumb/back --}}
         <div class="top-actions">
-            <a href="{{ url('/user/menu') }}" class="btn-back">
+            <a href="{{ route('user.menu') }}" class="btn-back">
                 <i class="fa-solid fa-arrow-left"></i>
                 Kembali ke Menu
             </a>
         </div>
 
+        {{-- hero --}}
         <section class="hero">
             <div class="hero-media">
-                <img src="{{ asset('assets/tea-series/lemon-tea.svg') }}" alt="Lemon Tea" class="drink-image" />
-                <div class="badge">
+                <img id="drinkImage" src="" alt="" class="drink-image" />
+
+                <div class="badge" id="bestSellerBadge" style="display:none;">
                     <i class="fa-solid fa-fire"></i>
                     Best Seller
                 </div>
             </div>
 
             <div class="hero-info">
-                <p class="category">AUTHENTIC TEA SERIES</p>
-                <h1 class="title">Lemon Tea</h1>
+                <p class="category" id="seriesTitle">-</p>
+                <h1 class="title" id="productName">-</h1>
 
                 <div class="meta">
-                    <div class="rating">
-                        <span class="stars" aria-label="rating 4.8 dari 5">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star-half-stroke"></i>
-                        </span>
-                        <span class="rating-text">4.8 (128 ulasan)</span>
+                    <div class="rating" id="ratingWrap" style="display:none;">
+                        <span class="stars" id="ratingStars" aria-label="rating"></span>
+                        <span class="rating-text" id="ratingText"></span>
                     </div>
-                    <div class="price">Rp 5.000</div>
+                    <div class="price" id="productPrice">-</div>
                 </div>
 
-                <p class="desc">
-                    Kombinasi teh rebus asli dengan rasa lemon yang segar. Cocok diminum
-                    saat cuaca panas. Manisnya bisa kamu atur (less sugar / normal).
-                </p>
+                <p class="desc" id="productDesc">-</p>
 
                 <div class="quick-spec">
                     <div class="spec">
                         <div class="spec-title">Ukuran</div>
-                        <div class="spec-value">Regular (350ml)</div>
+                        <div class="spec-value" id="specSize">-</div>
                     </div>
                     <div class="spec">
                         <div class="spec-title">Es</div>
-                        <div class="spec-value">Ice / Less Ice</div>
+                        <div class="spec-value" id="specIce">-</div>
                     </div>
                     <div class="spec">
                         <div class="spec-title">Gula</div>
-                        <div class="spec-value">Normal / Less Sugar</div>
+                        <div class="spec-value" id="specSugar">-</div>
                     </div>
                 </div>
 
                 <div class="cta">
-                    <a class="cta-btn gojek" href="https://gofood.link/a/FPu5BLq" target="_blank" rel="noopener">
+                    <a class="cta-btn gojek" id="gofoodLink" href="#" target="_blank" rel="noopener">
                         <i class="fa-solid fa-motorcycle"></i> GoFood
                     </a>
-                    <a class="cta-btn grab"
-                        href="https://grab.onelink.me/2695613898?pid=inappsharing&c=6-C3EYAEWXWAUHA6&is_retargeting=true&af_dp=grab%3A%2F%2Fopen%3FscreenType%3DGRABFOOD%26sourceID%3DA4pcqCZkS4%26merchantIDs%3D6-C3EYAEWXWAUHA6&af_force_deeplink=true"
-                        target="_blank" rel="noopener">
+                    <a class="cta-btn grab" id="grabfoodLink" href="#" target="_blank" rel="noopener">
                         <i class="fa-solid fa-bag-shopping"></i> GrabFood
                     </a>
-                    <a class="cta-btn shopee"
-                        href="https://shopee.co.id/universal-link/now-food/shop/20939777?deep_and_deferred=1&shareChannel=copy_link"
-                        target="_blank" rel="noopener">
+                    <a class="cta-btn shopee" id="shopeefoodLink" href="#" target="_blank" rel="noopener">
                         <i class="fa-solid fa-store"></i> ShopeeFood
                     </a>
                 </div>
 
-                <div class="note">
+                <div class="note" id="nutritionNote">
                     <i class="fa-solid fa-circle-info"></i>
-                    Informasi nutrisi bersifat estimasi per porsi.
+                    <span id="nutritionNoteText">Informasi nutrisi bersifat estimasi per porsi.</span>
                 </div>
             </div>
         </section>
 
+        {{-- nutrition --}}
         <section class="section">
             <div class="section-head">
                 <h2 class="section-title">Informasi Nutrisi</h2>
-                <p class="section-subtitle">Estimasi nutrisi untuk 1 porsi (Regular).</p>
+                <p class="section-subtitle" id="nutritionSubtitle">
+                    Estimasi nutrisi untuk 1 porsi.
+                </p>
             </div>
 
             <div class="nutrition-grid">
@@ -108,7 +91,7 @@
                         <span class="nutri-label">Kalori</span>
                         <i class="fa-solid fa-bolt"></i>
                     </div>
-                    <div class="nutri-value">110 <span>kcal</span></div>
+                    <div class="nutri-value"><span id="nutCalories">-</span> <span>kcal</span></div>
                     <div class="nutri-foot">Energi total</div>
                 </div>
 
@@ -117,8 +100,8 @@
                         <span class="nutri-label">Gula</span>
                         <i class="fa-solid fa-cube"></i>
                     </div>
-                    <div class="nutri-value">18 <span>g</span></div>
-                    <div class="nutri-foot">Per porsi (Normal)</div>
+                    <div class="nutri-value"><span id="nutSugar">-</span> <span>g</span></div>
+                    <div class="nutri-foot">Per porsi</div>
                 </div>
 
                 <div class="nutri-card">
@@ -126,7 +109,7 @@
                         <span class="nutri-label">Protein</span>
                         <i class="fa-solid fa-dumbbell"></i>
                     </div>
-                    <div class="nutri-value">0 <span>g</span></div>
+                    <div class="nutri-value"><span id="nutProtein">-</span> <span>g</span></div>
                     <div class="nutri-foot">Kandungan protein</div>
                 </div>
 
@@ -135,94 +118,48 @@
                         <span class="nutri-label">Lemak</span>
                         <i class="fa-solid fa-droplet"></i>
                     </div>
-                    <div class="nutri-value">0 <span>g</span></div>
+                    <div class="nutri-value"><span id="nutFat">-</span> <span>g</span></div>
                     <div class="nutri-foot">Total lemak</div>
                 </div>
             </div>
 
-            <div class="nutrition-note">
-                <div class="pill"><i class="fa-solid fa-leaf"></i> Teh rebus asli</div>
-                <div class="pill"><i class="fa-solid fa-snowflake"></i> Segar diminum dingin</div>
-                <div class="pill"><i class="fa-solid fa-thumbs-up"></i> Bisa request less sugar</div>
-            </div>
+            <div class="nutrition-note" id="nutritionPills"></div>
         </section>
 
+        {{-- testimonials --}}
         <section class="section section-feedback" id="feedback">
             <div class="section-head">
                 <h2 class="section-title">Testimoni</h2>
                 <p class="section-subtitle">Apa kata mereka tentang menu ini</p>
             </div>
 
-            <div class="feedback">
+            <div class="feedback" id="feedbackWrap">
                 <button class="fb-nav fb-prev" aria-label="Sebelumnya">
                     <i class="fa-solid fa-chevron-left"></i>
                 </button>
 
-                <div class="fb-track">
-                    <article class="fb-card active">
-                        <div class="fb-top">
-                            <div class="avatar">RA</div>
-                            <div class="who">
-                                <div class="name">Rani</div>
-                                <div class="stars-mini">
-                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                        class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                        class="fa-solid fa-star"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="fb-text">Lemon tea-nya seger banget, manisnya pas. Jadi favorit kalau lagi panas!</p>
-                        <div class="fb-foot">2 hari lalu</div>
-                    </article>
-
-                    <article class="fb-card">
-                        <div class="fb-top">
-                            <div class="avatar">AD</div>
-                            <div class="who">
-                                <div class="name">Adi</div>
-                                <div class="stars-mini">
-                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                        class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                        class="fa-solid fa-star-half-stroke"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="fb-text">Enak, rasanya ringan. Cocok buat yang nggak suka terlalu manis, minta less sugar.
-                        </p>
-                        <div class="fb-foot">1 minggu lalu</div>
-                    </article>
-
-                    <article class="fb-card">
-                        <div class="fb-top">
-                            <div class="avatar">FK</div>
-                            <div class="who">
-                                <div class="name">Fika</div>
-                                <div class="stars-mini">
-                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                        class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                        class="fa-solid fa-star"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="fb-text">Packaging rapih, minuman tetep dingin sampai rumah. Rekomen!</p>
-                        <div class="fb-foot">3 minggu lalu</div>
-                    </article>
-                </div>
+                <div class="fb-track" id="fbTrack"></div>
 
                 <button class="fb-nav fb-next" aria-label="Berikutnya">
                     <i class="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
 
-            <div class="fb-dots" aria-label="indikator testimoni">
-                <span class="dot active" data-index="0"></span>
-                <span class="dot" data-index="1"></span>
-                <span class="dot" data-index="2"></span>
+            <div class="fb-dots" aria-label="indikator testimoni" id="fbDots"></div>
+
+            <div id="noTestimonials"
+                style="display:none; text-align:center; margin-top:14px; font-weight:700; color:rgba(0,0,0,.55);">
+                Belum ada testimoni untuk menu ini.
             </div>
         </section>
     </main>
 @endsection
 
-@section('page_js')
-    <script src="{{ asset('js/detail.dynamic.js') }}"></script>
+@section('scripts')
+    <script>
+        // Pastikan base API benar, dan tidak pernah mengarah ke /api/detail
+        // hasilnya: http://127.0.0.1:8000/api
+        window.__DETAIL_API_BASE__ = "{{ url('/api') }}";
+    </script>
+    <script src="{{ asset('js/detail.js') }}"></script>
 @endsection

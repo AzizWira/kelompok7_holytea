@@ -1,6 +1,20 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+
+Route::get('/detail/{slug}', function ($slug) {
+    $exists = DB::table('products')
+        ->where('slug', $slug)
+        ->where('is_active', 1)
+        ->exists();
+
+    if (!$exists) {
+        abort(404);
+    }
+
+    return view('user.detail', compact('slug'));
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -17,11 +31,18 @@ Route::view('/', 'user.index')->name('user.home');
 Route::view('/menu', 'user.menu')->name('user.menu');
 
 // halaman detail produk (pakai slug)
-Route::get('/detail/{slug}', function (string $slug) {
+Route::get('/detail/{slug}', function ($slug) {
+    $exists = DB::table('products')
+        ->where('slug', $slug)
+        ->where('is_active', 1)
+        ->exists();
+
+    if (!$exists) {
+        abort(404);
+    }
+
     return view('user.detail', compact('slug'));
-})
-    ->where('slug', '[a-z0-9-]+')
-    ->name('user.detail');
+});
 
 
 /*
@@ -50,6 +71,6 @@ Route::prefix('admin')
 |--------------------------------------------------------------------------
 */
 Route::fallback(function () {
-    // Pastikan resources/views/errors/404.blade.php ada
     return response()->view('errors.404', [], 404);
 });
+
