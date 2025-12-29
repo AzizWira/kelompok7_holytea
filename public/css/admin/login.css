@@ -1,0 +1,19 @@
+.login-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 18px;
+}
+
+.login-logo {
+    width: 90px;
+    height: auto;
+    display: inline-block;
+}

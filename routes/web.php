@@ -3,74 +3,64 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 
-Route::get('/detail/{slug}', function ($slug) {
-    $exists = DB::table('products')
-        ->where('slug', $slug)
-        ->where('is_active', 1)
-        ->exists();
-
-    if (!$exists) {
-        abort(404);
-    }
-
-    return view('user.detail', compact('slug'));
-});
+use App\Http\Controllers\Admin\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
-| USER (PUBLIC) ROUTES
+| USER (PUBLIC) PAGES
 |--------------------------------------------------------------------------
-| Halaman user TIDAK pakai Bootstrap
-| Data diambil via API (fetch dari JS)
+| Halaman user (render Blade)
+| Data diambil via API (fetch JS)
 */
 
-// halaman utama
 Route::view('/', 'user.index')->name('user.home');
-
-// halaman menu
 Route::view('/menu', 'user.menu')->name('user.menu');
 
-// halaman detail produk (pakai slug)
-Route::get('/detail/{slug}', function ($slug) {
+Route::get('/detail/{slug}', function (string $slug) {
     $exists = DB::table('products')
         ->where('slug', $slug)
         ->where('is_active', 1)
         ->exists();
 
-    if (!$exists) {
-        abort(404);
-    }
+    abort_if(!$exists, 404);
 
     return view('user.detail', compact('slug'));
+})->name('user.detail');
+
+
+/*
+|--------------------------------------------------------------------------
+| ADMIN PAGES (API-FIRST)
+|--------------------------------------------------------------------------
+| Halaman admin hanya VIEW (Bootstrap)
+| Data & auth lewat API (Bearer Token)
+*/
+
+Route::view('/login', 'admin.login')->name('login');
+
+Route::prefix('admin')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('admin.dashboard');
+
+    Route::view('/products', 'admin.products.index')
+        ->name('admin.products.index');
+
+    Route::view('/categories', 'admin.categories.index')
+        ->name('admin.categories.index');
+
+    Route::view('/testimonials', 'admin.testimonials.index')
+        ->name('admin.testimonials.index');
+
+    Route::view('/settings', 'admin.settings.index')
+        ->name('admin.settings');
 });
 
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN ROUTES (PLACEHOLDER)
-|--------------------------------------------------------------------------
-| Nanti akan diproteksi auth + role admin
-| Untuk sekarang DISIAPKAN saja
-*/
-
-Route::prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-
-        // halaman login admin
-        Route::view('/login', 'admin.login')->name('login');
-
-        // dashboard admin (nanti pakai middleware auth)
-        Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
-    });
-
-
-/*
-|--------------------------------------------------------------------------
-| FALLBACK (404)
+| FALLBACK
 |--------------------------------------------------------------------------
 */
 Route::fallback(function () {
     return response()->view('errors.404', [], 404);
 });
-
