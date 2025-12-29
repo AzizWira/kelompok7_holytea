@@ -17,8 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
 
-        // OPTIONAL (kalau kamu mau memastikan route api pakai stateful cookie sanctum untuk SPA)
-        // biasanya tidak wajib kalau kamu pakai Bearer token.
+        // Tidak perlu statefulApi kalau kamu pakai Bearer token.
         // $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -4,27 +4,31 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle($request, Closure $next, string $role)
+    public function handle(Request $request, Closure $next, ...$roles)
     {
         $user = $request->user();
 
-        if (!$user)
-            abort(401);
-        if (!$user->is_active)
-            abort(403, 'User inactive');
-        if ($user->role !== $role)
-            abort(403, 'Forbidden');
+        if (!$user) {
+            return $request->expectsJson()
+                ? response()->json(['success' => false, 'message' => 'Unauthenticated'], 401)
+                : abort(401);
+        }
+
+        if (property_exists($user, 'is_active') && !$user->is_active) {
+            return $request->expectsJson()
+                ? response()->json(['success' => false, 'message' => 'User inactive'], 403)
+                : abort(403, 'User inactive');
+        }
+
+        if (!in_array($user->role, $roles, true)) {
+            return $request->expectsJson()
+                ? response()->json(['success' => false, 'message' => 'Forbidden'], 403)
+                : abort(403, 'Forbidden');
+        }
 
         return $next($request);
     }
-
 }

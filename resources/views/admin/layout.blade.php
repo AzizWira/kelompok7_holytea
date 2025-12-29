@@ -69,6 +69,9 @@
         const TOKEN_KEY = 'holytea_admin_token';
         const USER_KEY = 'holytea_admin_user';
 
+        const ADMIN1_PAGES = ['/admin/products', '/admin/categories'];
+        const ADMIN2_PAGES = ['/admin/testimonials', '/admin/settings'];
+
         function setAlert(msg) {
             const el = document.getElementById('pageAlert');
             el.textContent = msg;
@@ -81,8 +84,15 @@
             el.textContent = '';
         }
 
+        function hardLogoutToLogin() {
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem(USER_KEY);
+            window.location.href = '/login';
+        }
+
         async function apiFetch(path, options = {}) {
             const token = localStorage.getItem(TOKEN_KEY);
+
             const headers = {
                 'Accept': 'application/json',
                 ...(options.headers || {}),
@@ -92,11 +102,9 @@
             const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
             const json = await res.json().catch(() => null);
 
+            // token invalid / expired
             if (res.status === 401) {
-                // token invalid / expired
-                localStorage.removeItem(TOKEN_KEY);
-                localStorage.removeItem(USER_KEY);
-                window.location.href = '/login';
+                hardLogoutToLogin();
                 return null;
             }
 
@@ -120,28 +128,47 @@
             if (role === 'admin1') {
                 document.getElementById('roleLabel').textContent = 'HolyTea Admin 1';
                 el.innerHTML = `
-            <div class="nav flex-column gap-2">
-                ${item('/admin/dashboard', 'Dashboard')}
-                ${item('/admin/products', 'Produk')}
-                ${item('/admin/categories', 'Kategori')}
-            </div>
-        `;
+                    <div class="nav flex-column gap-2">
+                        ${item('/admin/dashboard', 'Dashboard')}
+                        ${item('/admin/products', 'Produk')}
+                        ${item('/admin/categories', 'Kategori')}
+                    </div>
+                `;
             } else if (role === 'admin2') {
                 document.getElementById('roleLabel').textContent = 'HolyTea Admin 2';
                 el.innerHTML = `
-            <div class="nav flex-column gap-2">
-                ${item('/admin/dashboard', 'Dashboard')}
-                ${item('/admin/testimonials', 'Testimoni')}
-                ${item('/admin/settings', 'Pengaturan')}
-            </div>
-        `;
+                    <div class="nav flex-column gap-2">
+                        ${item('/admin/dashboard', 'Dashboard')}
+                        ${item('/admin/testimonials', 'Testimoni')}
+                        ${item('/admin/settings', 'Pengaturan')}
+                    </div>
+                `;
             } else {
                 document.getElementById('roleLabel').textContent = 'Admin';
                 el.innerHTML = `
-            <div class="nav flex-column gap-2">
-                ${item('/admin/dashboard', 'Dashboard')}
-            </div>
-        `;
+                    <div class="nav flex-column gap-2">
+                        ${item('/admin/dashboard', 'Dashboard')}
+                    </div>
+                `;
+            }
+        }
+
+        function enforceRoleAccess(role) {
+            const path = window.location.pathname;
+
+            // dashboard selalu boleh
+            if (path === '/admin/dashboard') return;
+
+            // admin1 tidak boleh akses admin2 pages
+            if (ADMIN2_PAGES.includes(path) && role !== 'admin2') {
+                window.location.href = '/admin/dashboard';
+                return;
+            }
+
+            // admin2 tidak boleh akses admin1 pages
+            if (ADMIN1_PAGES.includes(path) && role !== 'admin1') {
+                window.location.href = '/admin/dashboard';
+                return;
             }
         }
 
@@ -149,19 +176,32 @@
             clearAlert();
 
             const token = localStorage.getItem(TOKEN_KEY);
+
+            // kalau tidak ada token, lempar login
             if (!token) {
                 window.location.href = '/login';
                 return null;
             }
 
+            // selalu ambil user terbaru dari API (biar role up to date)
             const me = await apiFetch('/auth/me');
             if (!me) return null;
 
             const user = me.data;
+
+            // kalau user inactive, logout
+            if (user?.is_active === 0 || user?.is_active === false) {
+                hardLogoutToLogin();
+                return null;
+            }
+
             localStorage.setItem(USER_KEY, JSON.stringify(user));
 
             document.getElementById('userBadge').textContent = `${user.username} • ${user.role}`;
             renderSidebar(user.role);
+
+            // role guard: kalau akses halaman yang bukan haknya → dashboard
+            enforceRoleAccess(user.role);
 
             return user;
         }
@@ -175,9 +215,7 @@
             } catch (_) {
                 // ignore
             } finally {
-                localStorage.removeItem(TOKEN_KEY);
-                localStorage.removeItem(USER_KEY);
-                window.location.href = '/login';
+                hardLogoutToLogin();
             }
         });
     </script>

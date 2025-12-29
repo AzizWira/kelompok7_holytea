@@ -18,27 +18,22 @@ use App\Http\Controllers\Api\Admin\UploadController;
 | PUBLIC API (USER)
 |--------------------------------------------------------------------------
 */
-
 Route::get('/home', [HomeController::class, 'index']);
 Route::get('/menu', [MenuController::class, 'index']);
 Route::get('/products/{slug}', [ProductController::class, 'show']);
-
 
 /*
 |--------------------------------------------------------------------------
 | AUTH API (ADMIN)
 |--------------------------------------------------------------------------
 */
-
 Route::post('/auth/login', [AuthController::class, 'login']);
-
 
 /*
 |--------------------------------------------------------------------------
-| PROTECTED ADMIN API
+| PROTECTED API (ADMIN)
 |--------------------------------------------------------------------------
 */
-
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/auth/me', [AuthController::class, 'me']);
@@ -49,7 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
     | ADMIN 1 (PRODUCT & CATEGORY)
     |--------------------------
     */
-    Route::middleware('role:admin1')->prefix('admin')->group(function () {
+    Route::prefix('admin')->middleware('role:admin1')->group(function () {
         Route::post('/upload/product-image', [UploadController::class, 'productImage']);
         Route::apiResource('products', ProductAdminController::class);
         Route::apiResource('categories', CategoryAdminController::class);
@@ -60,10 +55,16 @@ Route::middleware('auth:sanctum')->group(function () {
     | ADMIN 2 (TESTIMONIAL & SETTINGS)
     |--------------------------
     */
-    Route::middleware('role:admin2')->prefix('admin')->group(function () {
-        Route::apiResource('testimonials', TestimonialAdminController::class)
-            ->only(['index', 'show', 'update', 'destroy']);
+    Route::prefix('admin')->middleware('role:admin2')->group(function () {
 
+        // dropdown pilihan produk (untuk modal tambah/edit testimoni)
+        Route::get('/products-options', [TestimonialAdminController::class, 'productOptions']);
+
+        // testimoni (CRUD)
+        Route::apiResource('testimonials', TestimonialAdminController::class)
+            ->only(['index', 'store', 'show', 'update', 'destroy']);
+
+        // settings
         Route::get('/settings', [SettingAdminController::class, 'show']);
         Route::put('/settings', [SettingAdminController::class, 'update']);
     });
